@@ -30,5 +30,16 @@ clean:
 commit:
 	git add .
 	git commit -m "Update image to $(IMAGE_TAG)"
-	git tag -a $(IMAGE_TAG) -m "Release version $(IMAGE_TAG)"
-	git push origin main --tags
+	# Increment patch version
+	@current_tag=$(IMAGE_TAG); \
+	IFS='.' read -r major minor patch <<EOF $$current_tag; \
+EOF
+	if [ -z "$$major" ] || [ -z "$$minor" ] || [ -z "$$patch" ]; then \
+		echo "Invalid tag format, skipping tag increment."; \
+	else \
+		new_patch=$$(($$patch + 1)); \
+		new_tag="$$major.$$minor.$$new_patch"; \
+		git tag -a $$new_tag -m "Release version $$new_tag"; \
+		git push origin $$new_tag; \
+	fi
+	git push origin main

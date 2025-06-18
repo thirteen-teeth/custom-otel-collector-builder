@@ -1,5 +1,5 @@
 IMAGE_NAME=custom-otel-collector
-IMAGE_TAG=$(shell git describe --tags --abbrev=0 2>/dev/null || echo 1.0.0)
+IMAGE_TAG=$(shell git describe --tags --abbrev=0 $(shell git rev-list --tags --max-count=1) 2>/dev/null || echo 1.0.0)
 PLATFORMS=linux/amd64,linux/arm64
 BUILDER=mybuilder
 

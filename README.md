@@ -9,5 +9,9 @@ make run
 # This will remove all compiled binaries and temporary files
 make clean
 
-# test change
+# Commit changes
+make commit m="Your commit message here"
+
+# Release a new version with a tag autoincrement
+make release
 ```

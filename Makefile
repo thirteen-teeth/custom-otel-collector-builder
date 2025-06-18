@@ -27,7 +27,7 @@ run:
 clean:
 	docker rmi $(IMAGE_NAME):$(IMAGE_TAG) || true
 
-commit:
+release:
 	git add .
 	git commit -m "Update image to $(IMAGE_TAG)"
 	@current_tag=$(IMAGE_TAG); \
@@ -43,3 +43,11 @@ commit:
 		git push origin $$new_tag; \
 	fi
 	git push origin main
+
+commit:
+	@if [ -z "$(m)" ]; then \
+		echo "Error: Please provide a commit message with make commit m='your message'"; \
+		exit 1; \
+	fi
+	git add .
+	git commit -m "$(m)"

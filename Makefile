@@ -43,6 +43,3 @@ commit:
 		git push origin $$new_tag; \
 	fi
 	git push origin main
-
-
-###

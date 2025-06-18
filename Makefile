@@ -30,10 +30,10 @@ clean:
 commit:
 	git add .
 	git commit -m "Update image to $(IMAGE_TAG)"
-	# Increment patch version
 	@current_tag=$(IMAGE_TAG); \
-	IFS='.' read -r major minor patch <<EOF $$current_tag; \
-EOF
+	major=$$(echo $$current_tag | cut -d. -f1); \
+	minor=$$(echo $$current_tag | cut -d. -f2); \
+	patch=$$(echo $$current_tag | cut -d. -f3); \
 	if [ -z "$$major" ] || [ -z "$$minor" ] || [ -z "$$patch" ]; then \
 		echo "Invalid tag format, skipping tag increment."; \
 	else \

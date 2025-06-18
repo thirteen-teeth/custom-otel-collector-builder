@@ -26,3 +26,9 @@ run:
 
 clean:
 	docker rmi $(IMAGE_NAME):$(IMAGE_TAG) || true
+
+commit:
+	git add .
+	git commit -m "Update image to $(IMAGE_TAG)"
+	git tag -a $(IMAGE_TAG) -m "Release version $(IMAGE_TAG)"
+	git push origin main --tags

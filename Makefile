@@ -1,6 +1,6 @@
 # Makefile for building and running a custom OpenTelemetry Collector Docker image with GELF receiver
 IMAGE_NAME=custom-otel-collector
-IMAGE_TAG=$(shell git describe --tags --abbrev=0 $(shell git rev-list --tags --max-count=1) 2>/dev/null || echo 1.0.0)
+IMAGE_TAG=1.0.4
 PLATFORMS=linux/amd64,linux/arm64
 BUILDER=mybuilder
 
@@ -64,6 +64,25 @@ commit:
 	fi
 	git add .
 	git commit -m "$(m)"
+
+increment-tag:
+	@if [ -z "$(IMAGE_TAG)" ]; then \
+		echo "Error: IMAGE_TAG is not set. Please set it before running this target."; \
+		exit 1; \
+	fi
+	@current_tag=$(IMAGE_TAG); \
+	major=$$(echo $$current_tag | cut -d. -f1); \
+	minor=$$(echo $$current_tag | cut -d. -f2); \
+	patch=$$(echo $$current_tag | cut -d. -f3); \
+	if [ -z "$$major" ] || [ -z "$$minor" ] || [ -z "$$patch" ]; then \
+		echo "Invalid tag format, skipping tag increment."; \
+	else \
+		new_patch=$$(($$patch + 1)); \
+		new_tag="$$major.$$minor.$$new_patch"; \
+		echo "Incrementing tag from $$current_tag to $$new_tag"; \
+		sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$$new_tag/" Makefile; \
+		echo "New IMAGE_TAG is $$new_tag"; \
+	fi
 
 release:
 	git add .

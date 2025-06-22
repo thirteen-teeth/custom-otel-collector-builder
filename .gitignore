@@ -1,5 +1,5 @@
 # Build artifacts and binaries
-otelcol-dev/otelcol-dev
+otelcol-dev/*
 *.exe
 *.exe~
 *.dll
@@ -74,6 +74,9 @@ dist/
 otelcol-contrib
 otelcol-builder
 _build/
+
+# Local development - exclude old gelfreceiver directory
+gelfreceiver/
 
 # Test artifacts
 testdata/

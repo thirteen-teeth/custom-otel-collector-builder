@@ -7,13 +7,13 @@ receivers:
         endpoint: 0.0.0.0:4318
 
   gelf:
-    listen_address: "0.0.0.0:12201"
-    protocol: "both" # Support both TCP and UDP
+    listen_address: 0.0.0.0:12201
+    protocol: both # Support both TCP and UDP
     use_compression: true
     max_message_size: 8192
-    read_timeout: "30s"
-    write_timeout: "30s"
-    chunk_timeout: "5s"
+    read_timeout: 30s
+    write_timeout: 30s
+    chunk_timeout: 5s
 
 processors:
   batch:

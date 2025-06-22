@@ -1,0 +1,94 @@
+2025-06-22T17:18:34.292-0400	info	service@v0.128.0/service.go:199	Setting up own telemetry...	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}}
+2025-06-22T17:18:34.292-0400	info	builders/builders.go:26	Development component. May change in the future.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "traces"}
+2025-06-22T17:18:34.293-0400	debug	builders/builders.go:24	Beta component. May change in the future.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "batch", "otelcol.component.kind": "processor", "otelcol.pipeline.id": "traces", "otelcol.signal": "traces"}
+2025-06-22T17:18:34.293-0400	debug	builders/builders.go:24	Stable component.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "otlp", "otelcol.component.kind": "receiver", "otelcol.signal": "traces"}
+2025-06-22T17:18:34.293-0400	debug	otlpreceiver@v0.128.0/otlp.go:58	created signal-agnostic logger	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "otlp", "otelcol.component.kind": "receiver"}
+2025-06-22T17:18:34.293-0400	info	builders/builders.go:26	Development component. May change in the future.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "metrics"}
+2025-06-22T17:18:34.294-0400	debug	builders/builders.go:24	Beta component. May change in the future.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "batch", "otelcol.component.kind": "processor", "otelcol.pipeline.id": "metrics", "otelcol.signal": "metrics"}
+2025-06-22T17:18:34.294-0400	debug	builders/builders.go:24	Stable component.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "otlp", "otelcol.component.kind": "receiver", "otelcol.signal": "metrics"}
+2025-06-22T17:18:34.294-0400	info	builders/builders.go:26	Development component. May change in the future.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "logs"}
+2025-06-22T17:18:34.294-0400	debug	builders/builders.go:24	Beta component. May change in the future.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "batch", "otelcol.component.kind": "processor", "otelcol.pipeline.id": "logs", "otelcol.signal": "logs"}
+2025-06-22T17:18:34.294-0400	debug	builders/builders.go:24	Stable component.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "otlp", "otelcol.component.kind": "receiver", "otelcol.signal": "logs"}
+2025-06-22T17:18:34.294-0400	debug	builders/builders.go:24	Alpha component. May change in the future.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "gelf", "otelcol.component.kind": "receiver", "otelcol.signal": "logs"}
+2025-06-22T17:18:34.294-0400	info	service@v0.128.0/service.go:259	Starting otelcol-dev...	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "Version": "", "NumCPU": 24}
+2025-06-22T17:18:34.294-0400	info	extensions/extensions.go:41	Starting extensions...	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}}
+2025-06-22T17:18:34.294-0400	info	grpc@v1.72.2/server.go:690	[core] [Server #1]Server created	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "grpc_log": true}
+2025-06-22T17:18:34.295-0400	info	otlpreceiver@v0.128.0/otlp.go:117	Starting GRPC server	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "otlp", "otelcol.component.kind": "receiver", "endpoint": "0.0.0.0:4317"}
+2025-06-22T17:18:34.295-0400	info	otlpreceiver@v0.128.0/otlp.go:175	Starting HTTP server	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "otlp", "otelcol.component.kind": "receiver", "endpoint": "0.0.0.0:4318"}
+2025-06-22T17:18:34.295-0400	info	gelfreceiver/receiver.go:38	Starting GELF receiver	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "gelf", "otelcol.component.kind": "receiver", "otelcol.signal": "logs", "listen_address": "0.0.0.0:12201", "protocol": "both", "compression": true, "max_message_size": 8192}
+2025-06-22T17:18:34.295-0400	info	gelfreceiver/receiver.go:101	TCP listener started	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "gelf", "otelcol.component.kind": "receiver", "otelcol.signal": "logs", "address": "[::]:12201"}
+2025-06-22T17:18:34.295-0400	info	gelfreceiver/receiver.go:122	UDP listener started	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "gelf", "otelcol.component.kind": "receiver", "otelcol.signal": "logs", "address": "[::]:12201"}
+2025-06-22T17:18:34.295-0400	info	gelfreceiver/receiver.go:60	GELF receiver started successfully	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "gelf", "otelcol.component.kind": "receiver", "otelcol.signal": "logs"}
+2025-06-22T17:18:34.295-0400	info	grpc@v1.72.2/server.go:886	[core] [Server #1 ListenSocket #2]ListenSocket created	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "grpc_log": true}
+2025-06-22T17:18:34.295-0400	info	service@v0.128.0/service.go:282	Everything is ready. Begin running and processing data.	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}}
+2025-06-22T17:18:37.301-0400	info	Logs	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "logs", "resource logs": 1, "log records": 1}
+2025-06-22T17:18:37.301-0400	info	ResourceLog #0
+Resource SchemaURL: 
+Resource attributes:
+     -> host.name: Str(test-host)
+     -> facility: Str(test)
+ScopeLogs #0
+ScopeLogs SchemaURL: 
+InstrumentationScope gelf-receiver 1.0.0
+LogRecord #0
+ObservedTimestamp: 1970-01-01 00:00:00 +0000 UTC
+Timestamp: 2022-12-16 23:49:27.122999906 +0000 UTC
+SeverityText: INFO
+SeverityNumber: Info(9)
+Body: Str(UDP test message)
+Attributes:
+     -> full_message: Str(This is a full UDP test message
+with multiple lines)
+     -> environment: Str(test)
+     -> user_id: Double(9001)
+Trace ID: 
+Span ID: 
+Flags: 0
+	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "logs"}
+2025-06-22T17:18:40.311-0400	info	Logs	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "logs", "resource logs": 1, "log records": 1}
+2025-06-22T17:18:40.311-0400	info	ResourceLog #0
+Resource SchemaURL: 
+Resource attributes:
+     -> host.name: Str(test-host)
+     -> facility: Str(test)
+ScopeLogs #0
+ScopeLogs SchemaURL: 
+InstrumentationScope gelf-receiver 1.0.0
+LogRecord #0
+ObservedTimestamp: 1970-01-01 00:00:00 +0000 UTC
+Timestamp: 2022-12-16 23:49:28.456000089 +0000 UTC
+SeverityText: NOTICE
+SeverityNumber: Info2(10)
+Body: Str(TCP test message)
+Attributes:
+     -> full_message: Str(This is a full TCP test message)
+     -> service: Str(test-service)
+     -> request_id: Str(abc123)
+Trace ID: 
+Span ID: 
+Flags: 0
+	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "logs"}
+2025-06-22T17:18:43.317-0400	info	Logs	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "logs", "resource logs": 1, "log records": 1}
+2025-06-22T17:18:43.317-0400	info	ResourceLog #0
+Resource SchemaURL: 
+Resource attributes:
+     -> host.name: Str(production-server)
+ScopeLogs #0
+ScopeLogs SchemaURL: 
+InstrumentationScope gelf-receiver 1.0.0
+LogRecord #0
+ObservedTimestamp: 1970-01-01 00:00:00 +0000 UTC
+Timestamp: 2025-06-22 21:18:43.298957417 +0000 UTC
+SeverityText: ERROR
+SeverityNumber: Error(17)
+Body: Str(Error in application)
+Attributes:
+     -> stack_trace: Str(line1
+line2
+line3)
+     -> error_code: Double(500)
+     -> module: Str(auth)
+Trace ID: 
+Span ID: 
+Flags: 0
+	{"resource": {"service.instance.id": "545f58b4-00fc-46bd-9029-5235b2b7d3b0", "service.name": "otelcol-dev", "service.version": ""}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "logs"}

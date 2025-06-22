@@ -1,10 +1,11 @@
 FROM alpine:3.19 AS certs
 RUN apk --update add ca-certificates
 
-FROM golang:1.23.6 AS build-stage
+FROM golang:1.24 AS build-stage
 WORKDIR /build
 
 COPY ./builder-config.yaml builder-config.yaml
+COPY ./gelfreceiver/ gelfreceiver/
 
 RUN --mount=type=cache,target=/root/.cache/go-build GO111MODULE=on go install go.opentelemetry.io/collector/cmd/builder@v0.128.0
 RUN --mount=type=cache,target=/root/.cache/go-build builder --config builder-config.yaml
@@ -21,4 +22,4 @@ COPY --chmod=755 --from=build-stage /build/otelcol-dev /otelcol
 ENTRYPOINT ["/otelcol/otelcol-dev"]
 CMD ["--config", "/otelcol/collector-config.yaml"]
 
-EXPOSE 4317 4318
+EXPOSE 4317 4318 12201

@@ -1,0 +1,117 @@
+# Build artifacts and binaries
+otelcol-dev/otelcol-dev
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace and modules
+go.work
+go.work.sum
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.cover
+*.coverprofile
+
+# Dependency directories
+vendor/
+
+# Go workspace files
+go.work.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs and runtime files
+*.log
+collector-test.log
+collector-output.log
+collector.pid
+*.pid
+
+# Docker artifacts (optional - uncomment if you don't want to track these)
+# Dockerfile.build
+# docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+.tmp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build cache
+.cache/
+build/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OpenTelemetry Collector specific
+otelcol-contrib
+otelcol-builder
+_build/
+
+# Test artifacts
+testdata/
+coverage.html
+coverage.xml
+
+# Backup files
+*.bak
+*.orig
+*.rej
+
+# Compressed files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Local configuration overrides (if any)
+*-local.yaml
+*-local.yml
+local-*.yaml
+local-*.yml
+
+# Profiling files
+cpu.prof
+mem.prof
+*.prof
+
+# Certificate files (if generated locally)
+*.pem
+*.key
+*.crt
+*.csr
+
+# Documentation build artifacts
+docs/_build/
+docs/site/

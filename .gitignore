@@ -1,5 +1,5 @@
 # Build artifacts and binaries
-otelcol-dev/*
+otelcol-custom/*
 *.exe
 *.exe~
 *.dll

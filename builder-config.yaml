@@ -1,10 +1,7 @@
 dist:
-  name: otelcol-dev
+  name: otelcol-custom
   description: OTel Collector with GELF receiver
-  output_path: ./otelcol-dev
-
-replaces:
-- github.com/teeth/custom-otel-collector-builder/gelfreceiver => ../gelfreceiver
+  output_path: ./otelcol-custom
 
 exporters:
 - gomod:
@@ -17,7 +14,7 @@ processors:
 
 receivers:
 - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.128.0
-- gomod: github.com/teeth/custom-otel-collector-builder/gelfreceiver v0.0.0
+- gomod: github.com/thirteen-teeth/otel-gelf-receiver v1.0.0
 
 providers:
 - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.18.0

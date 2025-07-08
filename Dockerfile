@@ -1,7 +1,7 @@
 FROM alpine:3.19 AS certs
 RUN apk --update add ca-certificates
 
-FROM golang:1.24 AS build-stage
+FROM golang:1.24.4 AS build-stage
 WORKDIR /build
 
 COPY ./builder-config.yaml builder-config.yaml
@@ -17,9 +17,9 @@ USER ${USER_UID}
 
 COPY ./collector-config.yaml /otelcol/collector-config.yaml
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --chmod=755 --from=build-stage /build/otelcol-dev /otelcol
+COPY --chmod=755 --from=build-stage /build/otelcol-custom /otelcol
 
-ENTRYPOINT ["/otelcol/otelcol-dev"]
+ENTRYPOINT ["/otelcol/otelcol-custom"]
 CMD ["--config", "/otelcol/collector-config.yaml"]
 
 EXPOSE 4317 4318 12201

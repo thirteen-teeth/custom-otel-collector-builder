@@ -199,7 +199,7 @@ custom-otel-collector-builder/
 │   ├── receiver.go            # Main receiver logic
 │   ├── gelf.go                # GELF processing
 │   └── chunks.go              # UDP chunking
-├── otelcol-dev/               # Generated collector binary
+├── otelcol-custom/               # Generated collector binary
 ├── test-gelf.sh               # Test script
 ├── Dockerfile                 # Docker build
 └── Makefile                  # Build automation

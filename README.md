@@ -1,25 +1,20 @@
-# Custom OpenTelemetry Collector with GELF Receiver
+# Custom OpenTelemetry Collector Builder
 
-This project implements a custom OpenTelemetry Collector with a GELF (Graylog Extended Log Format) receiver. The GELF receiver allows you to collect logs from applications that send GELF messages via TCP or UDP and convert them to OpenTelemetry log format.
+This project builds a custom OpenTelemetry Collector with a GELF (Graylog Extended Log Format) receiver. It provides a complete build environment with Docker support, version management, and testing utilities.
 
 ## Features
 
-### GELF Receiver Features
-- ✅ **Protocol Support**: TCP and UDP (configurable)
-- ✅ **Default Port**: 12201 (GELF standard, configurable)
-- ✅ **Compression**: GZIP compression support
-- ✅ **Message Validation**: Validates required GELF fields
-- ✅ **Chunking**: UDP chunk reassembly support (GELF specification)
-- ✅ **Error Handling**: Comprehensive error logging
-- ✅ **Performance**: Supports OpenTelemetry batch processor
-- ✅ **Field Mapping**: Proper mapping from GELF to OpenTelemetry log format
+### Build System
+- ✅ **Docker Support**: Multi-platform builds (linux/amd64, linux/arm64)
+- ✅ **Version Management**: Synchronized IMAGE_TAG and git tags
+- ✅ **Testing**: Automated GELF receiver testing
+- ✅ **CI/CD Ready**: Complete build and release pipeline
 
-### GELF Specification Compliance
-- Supports GELF version 1.1
-- Required fields: `version`, `host`, `short_message`
-- Optional fields: `full_message`, `timestamp`, `level`, `facility`, `line`, `file`
-- Additional fields (prefixed with `_`) are preserved as log attributes
-- Syslog level mapping to OpenTelemetry severity levels
+### Collector Features
+- ✅ **GELF Receiver**: TCP and UDP protocol support
+- ✅ **Compression**: GZIP compression support
+- ✅ **Chunking**: UDP chunk reassembly support
+- ✅ **Field Mapping**: Proper mapping from GELF to OpenTelemetry log format
 
 ## Quick Start
 
@@ -31,7 +26,7 @@ make build-collector
 
 ### Run the Collector
 ```bash
-# Start the collector
+# Start the collector locally
 make run
 ```
 
@@ -41,178 +36,147 @@ make run
 make test-gelf
 ```
 
+### Build Docker Image
+```bash
+# Build multi-platform Docker image
+make build
+```
+
+### Run in Docker
+```bash
+# Run the collector in Docker
+make run-docker
+```
+
 ## Configuration
 
-The GELF receiver supports the following configuration options in your `collector-config.yaml`:
+The collector uses two main configuration files:
+
+### Builder Configuration (`builder-config.yaml`)
+Defines which components to include in the custom collector:
+
+```yaml
+dist:
+  name: otelcol-custom
+  description: Custom OpenTelemetry Collector with GELF receiver
+  output_path: ./otelcol-custom
+  otelcol_version: 0.128.0
+
+receivers:
+  - gomod: github.com/thirteen-teeth/otel-gelf-receiver v1.0.0
+    path: ./gelfreceiver
+
+processors:
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.128.0
+  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.128.0
+
+exporters:
+  - gomod: go.opentelemetry.io/collector/exporter/loggingexporter v0.128.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.128.0
+```
+
+### Collector Configuration (`collector-config.yaml`)
+Defines how the collector processes data:
 
 ```yaml
 receivers:
   gelf:
-    listen_address: "0.0.0.0:12201"    # Address to listen on
-    protocol: "both"                   # "tcp", "udp", or "both" 
-    use_compression: true              # Enable GZIP compression
-    max_message_size: 8192             # Maximum message size in bytes
-    read_timeout: "30s"                # TCP read timeout
-    write_timeout: "30s"               # TCP write timeout  
-    chunk_timeout: "5s"                # UDP chunk reassembly timeout
+    listen_address: "0.0.0.0:12201"
+    protocol: "both"
+    use_compression: true
+
+processors:
+  batch:
+  memory_limiter:
+    limit_mib: 512
+
+exporters:
+  logging:
+    loglevel: debug
+
+service:
+  pipelines:
+    logs:
+      receivers: [gelf]
+      processors: [memory_limiter, batch]
+      exporters: [logging]
 ```
 
-### Configuration Options
-
-| Option | Description | Default | Required |
-|--------|-------------|---------|----------|
-| `listen_address` | Network address to listen on | `0.0.0.0:12201` | No |
-| `protocol` | Transport protocol: `tcp`, `udp`, or `both` | `both` | No |
-| `use_compression` | Enable GZIP compression support | `true` | No |
-| `max_message_size` | Maximum message size in bytes | `8192` | No |
-| `read_timeout` | Read timeout for TCP connections | `30s` | No |
-| `write_timeout` | Write timeout for TCP connections | `30s` | No |
-| `chunk_timeout` | Timeout for UDP chunk reassembly | `5s` | No |
-
-## Sending GELF Messages
-
-### UDP Example
-```bash
-echo -n '{"version": "1.1", "host": "web-server", "short_message": "User login", "level": 6, "_user_id": 1234}' | nc -u localhost 12201
-```
-
-### TCP Example  
-```bash
-echo -n -e '{"version": "1.1", "host": "api-server", "short_message": "API request", "level": 6, "_endpoint": "/api/users"}'"\0" | nc localhost 12201
-```
-
-### GELF Message Format
-
-Required fields:
-- `version`: GELF spec version (e.g., "1.1")
-- `host`: Source hostname/application
-- `short_message`: Short descriptive message
-
-Optional fields:
-- `full_message`: Long message with details/backtrace
-- `timestamp`: UNIX timestamp (with decimals for milliseconds)
-- `level`: Syslog level (0-7)
-- `facility`: Syslog facility
-- `line`: Source code line number
-- `file`: Source file name
-
-Additional fields:
-- Any field prefixed with `_` (except `_id`)
-- Will be mapped to log attributes without the `_` prefix
-
-### Syslog Level Mapping
-
-| GELF Level | Syslog Level | OpenTelemetry Severity |
-|------------|--------------|------------------------|
-| 0 | EMERGENCY | FATAL4 |
-| 1 | ALERT | FATAL3 |
-| 2 | CRITICAL | FATAL2 |
-| 3 | ERROR | ERROR |
-| 4 | WARNING | WARN |
-| 5 | NOTICE | INFO2 |
-| 6 | INFO | INFO |
-| 7 | DEBUG | DEBUG |
-
-## Architecture
-
-```
-GELF Application → TCP/UDP:12201 → GELF Receiver → Batch Processor → Debug Exporter
-```
-
-### Components
-
-1. **GELF Receiver** (`gelfreceiver/`)
-   - `config.go`: Configuration structure and validation
-   - `factory.go`: OpenTelemetry receiver factory
-   - `receiver.go`: Main receiver logic with TCP/UDP listeners
-   - `gelf.go`: GELF message parsing and processing
-   - `chunks.go`: UDP chunk reassembly logic
-
-2. **Collector Configuration** (`collector-config.yaml`)
-   - Receiver, processor, and exporter pipeline configuration
-
-3. **Builder Configuration** (`builder-config.yaml`)
-   - OpenTelemetry Collector Builder configuration
-
-## Example Output
-
-When a GELF message is received, it's converted to OpenTelemetry format:
-
-```
-ResourceLog #0
-Resource SchemaURL: 
-Resource attributes:
-     -> host.name: Str(web-server)
-     -> facility: Str(auth)
-ScopeLogs #0
-InstrumentationScope gelf-receiver 1.0.0
-LogRecord #0
-Timestamp: 2025-06-22 21:16:46.188364917 +0000 UTC
-SeverityText: INFO
-SeverityNumber: Info(9)
-Body: Str(User login successful)
-Attributes:
-     -> user_id: Double(1234)
-     -> session_id: Str(abc123)
-     -> full_message: Str(User authentication completed successfully)
-```
-
-## Commands
+## Available Commands
 
 ### Build Commands
 ```bash
-# Build the collector
-make build-collector
-
-# Clean build artifacts
-make clean
+make build-collector    # Build the collector binary
+make build             # Build Docker image
+make setup             # Setup Docker buildx
 ```
 
 ### Run Commands
 ```bash
-# Run the collector
-make run
-
-# Test with sample GELF messages
-make test-gelf
+make run              # Run collector locally
+make run-docker       # Run collector in Docker
+make test-gelf        # Test GELF receiver
 ```
 
-### Docker Commands
+### Maintenance Commands
 ```bash
-# Build Docker image
-make build
+make clean            # Clean build artifacts
+make help             # Show all available commands
+```
 
-# Run in Docker (with port mapping)
+## Docker Usage
+
+### Build Docker Image
+```bash
+make build
+```
+
+### Run in Docker
+```bash
 make run-docker
 ```
 
-## Development
-
-### Project Structure
-```
-custom-otel-collector-builder/
-├── builder-config.yaml          # OCB configuration
-├── collector-config.yaml        # Collector runtime configuration
-├── gelfreceiver/               # GELF receiver implementation
-│   ├── config.go              # Configuration
-│   ├── factory.go             # Receiver factory
-│   ├── receiver.go            # Main receiver logic
-│   ├── gelf.go                # GELF processing
-│   └── chunks.go              # UDP chunking
-├── otelcol-custom/               # Generated collector binary
-├── test-gelf.sh               # Test script
-├── Dockerfile                 # Docker build
-└── Makefile                  # Build automation
+### Custom Configuration
+Mount your own configuration files:
+```bash
+docker run -it --rm \
+  -p 4317:4317 -p 4318:4318 -p 12201:12201/udp -p 12201:12201/tcp \
+  -v $(pwd)/my-config.yaml:/otelcol/collector-config.yaml \
+  custom-otel-collector:1.0.8
 ```
 
-### Adding Features
+## Project Structure
 
-To extend the GELF receiver:
+```
+├── builder-config.yaml      # Collector builder configuration
+├── collector-config.yaml    # Runtime collector configuration  
+├── Dockerfile              # Multi-stage Docker build
+├── Makefile                # Build automation
+├── version.sh              # Version management script
+├── test-gelf.sh            # GELF testing script
+└── gelfreceiver/           # GELF receiver module (git submodule)
+```
+```
 
-1. **Configuration**: Add options to `config.go`
-2. **Processing**: Modify logic in `gelf.go`
-3. **Networking**: Update handlers in `receiver.go`
-4. **Testing**: Add test cases to `test-gelf.sh`
+## Testing
+
+### Test GELF Receiver
+```bash
+# Run automated tests
+make test-gelf
+```
+
+### Manual Testing
+```bash
+# Start collector in background
+make run &
+
+# Send test UDP message
+echo -n '{"version": "1.1", "host": "test-server", "short_message": "Test message"}' | nc -u localhost 12201
+
+# Send test TCP message  
+echo -n -e '{"version": "1.1", "host": "test-server", "short_message": "Test message"}'"\0" | nc localhost 12201
+```
 
 ## Troubleshooting
 
@@ -222,26 +186,25 @@ To extend the GELF receiver:
    ```
    Error: bind: address already in use
    ```
-   - Solution: Change `listen_address` port or stop conflicting service
+   - Solution: Change port in `collector-config.yaml` or stop conflicting service
 
-2. **Invalid GELF Message**
+2. **Build Failures**
    ```
-   Failed to parse GELF message: missing required field: version
+   Error: failed to build collector
    ```
-   - Solution: Ensure GELF messages include required fields
+   - Solution: Ensure Go 1.24.4+ is installed and `gelfreceiver` module is present
 
-3. **Compression Issues**
-   - Set `use_compression: false` if having GZIP issues
-   - Check sender GZIP implementation
+3. **Docker Build Issues**
+   - Run `make setup` to configure Docker buildx
+   - Check Docker daemon is running
 
 ### Debug Mode
 
 Enable debug logging in `collector-config.yaml`:
 ```yaml
-service:
-  telemetry:
-    logs:
-      level: debug
+exporters:
+  logging:
+    loglevel: debug
 ```
 
 ## Version Management

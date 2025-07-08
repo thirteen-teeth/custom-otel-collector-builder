@@ -1,6 +1,6 @@
 # Makefile for building and running a custom OpenTelemetry Collector Docker image with GELF receiver
 IMAGE_NAME=custom-otel-collector
-IMAGE_TAG=1.0.8
+IMAGE_TAG=1.0.9
 PLATFORMS=linux/amd64,linux/arm64
 BUILDER=mybuilder
 

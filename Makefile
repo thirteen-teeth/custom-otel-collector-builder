@@ -41,8 +41,11 @@ setup: ## Set up Docker buildx for multi-platform builds
 # Build the OpenTelemetry Collector with GELF receiver
 build-collector: ## Build the OpenTelemetry Collector with GELF receiver
 	@echo "Building OpenTelemetry Collector with GELF receiver..."
-	cd gelfreceiver && go mod tidy
-	cd otelcol-custom && env GOWORK=off go build -o otelcol-custom .
+	@if ! command -v builder >/dev/null 2>&1; then \
+		echo "Installing OpenTelemetry Collector Builder..."; \
+		go install go.opentelemetry.io/collector/cmd/builder@v0.128.0; \
+	fi
+	builder --config builder-config.yaml
 	@echo "✅ OpenTelemetry Collector with GELF receiver built successfully!"
 
 # Run the collector

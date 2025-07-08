@@ -10,12 +10,6 @@ This project builds a custom OpenTelemetry Collector with a GELF (Graylog Extend
 - ✅ **Testing**: Automated GELF receiver testing
 - ✅ **CI/CD Ready**: Complete build and release pipeline
 
-### Collector Features
-- ✅ **GELF Receiver**: TCP and UDP protocol support
-- ✅ **Compression**: GZIP compression support
-- ✅ **Chunking**: UDP chunk reassembly support
-- ✅ **Field Mapping**: Proper mapping from GELF to OpenTelemetry log format
-
 ## Quick Start
 
 ### Build the Collector

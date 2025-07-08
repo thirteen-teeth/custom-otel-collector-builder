@@ -4,9 +4,7 @@ dist:
   output_path: ./otelcol-custom
 
 exporters:
-- gomod:
-    # NOTE: Prior to v0.86.0 use the `loggingexporter` instead of `debugexporter`.
-    go.opentelemetry.io/collector/exporter/debugexporter v0.128.0
+- gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.128.0
 - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.128.0
 
 processors:
@@ -14,7 +12,7 @@ processors:
 
 receivers:
 - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.128.0
-- gomod: github.com/thirteen-teeth/otel-gelf-receiver v1.0.0
+- gomod: github.com/thirteen-teeth/otelgelfreceiver v1.0.2
 
 providers:
 - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.18.0

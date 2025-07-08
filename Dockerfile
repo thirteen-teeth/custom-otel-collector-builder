@@ -5,7 +5,6 @@ FROM golang:1.24.4 AS build-stage
 WORKDIR /build
 
 COPY ./builder-config.yaml builder-config.yaml
-COPY ./gelfreceiver/ gelfreceiver/
 
 RUN --mount=type=cache,target=/root/.cache/go-build GO111MODULE=on go install go.opentelemetry.io/collector/cmd/builder@v0.128.0
 RUN --mount=type=cache,target=/root/.cache/go-build builder --config builder-config.yaml

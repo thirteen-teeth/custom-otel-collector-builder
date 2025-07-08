@@ -1,6 +1,6 @@
 # Makefile for building and running a custom OpenTelemetry Collector Docker image with GELF receiver
 IMAGE_NAME=custom-otel-collector
-IMAGE_TAG=1.0.5
+IMAGE_TAG=1.0.7
 PLATFORMS=linux/amd64,linux/arm64
 BUILDER=mybuilder
 
@@ -12,6 +12,14 @@ help: ## Show this help message
 	@echo "Available targets:"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "Version Management:"
+	@echo "  make check-sync              # Check if IMAGE_TAG matches git tag"
+	@echo "  make sync-from-git           # Set IMAGE_TAG to match latest git tag"
+	@echo "  make increment-patch         # Increment patch version (1.0.1 → 1.0.2)"
+	@echo "  make increment-minor         # Increment minor version (1.0.1 → 1.1.0)"
+	@echo "  make increment-major         # Increment major version (1.0.1 → 2.0.0)"
+	@echo "  make quick-release           # Increment patch and release in one command"
 	@echo ""
 	@echo "Usage examples:"
 	@echo "  make help                    # Show this help"
@@ -79,38 +87,84 @@ commit: ## Commit changes with a message (use: make commit m='your message')
 	git add .
 	git commit -m "$(m)"
 
-increment-tag: ## Increment the patch version in IMAGE_TAG
-	@if [ -z "$(IMAGE_TAG)" ]; then \
-		echo "Error: IMAGE_TAG is not set. Please set it before running this target."; \
+check-sync: ## Check if IMAGE_TAG matches the latest git tag
+	@latest_tag=$$(git describe --tags --abbrev=0 2>/dev/null || echo "none"); \
+	if [ "$$latest_tag" = "none" ]; then \
+		echo "❌ No git tags found. Current IMAGE_TAG: $(IMAGE_TAG)"; \
 		exit 1; \
-	fi
-	@current_tag=$(IMAGE_TAG); \
-	major=$$(echo $$current_tag | cut -d. -f1); \
-	minor=$$(echo $$current_tag | cut -d. -f2); \
-	patch=$$(echo $$current_tag | cut -d. -f3); \
-	if [ -z "$$major" ] || [ -z "$$minor" ] || [ -z "$$patch" ]; then \
-		echo "Invalid tag format, skipping tag increment."; \
+	elif [ "$$latest_tag" != "$(IMAGE_TAG)" ]; then \
+		echo "❌ IMAGE_TAG ($(IMAGE_TAG)) does not match latest git tag ($$latest_tag)"; \
+		exit 1; \
 	else \
-		new_patch=$$(($$patch + 1)); \
-		new_tag="$$major.$$minor.$$new_patch"; \
-		echo "Incrementing tag from $$current_tag to $$new_tag"; \
-		sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$$new_tag/" Makefile; \
-		echo "New IMAGE_TAG is $$new_tag"; \
+		echo "✅ IMAGE_TAG ($(IMAGE_TAG)) matches latest git tag ($$latest_tag)"; \
 	fi
 
-release: ## Create a release commit, tag, and push to origin
-	git add .
-	git commit -m "Update image to $(IMAGE_TAG)"
+sync-from-git: ## Set IMAGE_TAG to match the latest git tag
+	@latest_tag=$$(git describe --tags --abbrev=0 2>/dev/null || echo "none"); \
+	if [ "$$latest_tag" = "none" ]; then \
+		echo "❌ No git tags found. Cannot sync IMAGE_TAG."; \
+		exit 1; \
+	fi; \
+	echo "Setting IMAGE_TAG to match latest git tag: $$latest_tag"; \
+	sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$$latest_tag/" Makefile; \
+	echo "✅ IMAGE_TAG updated to $$latest_tag"
+
+increment-patch: ## Increment the patch version in IMAGE_TAG
 	@current_tag=$(IMAGE_TAG); \
 	major=$$(echo $$current_tag | cut -d. -f1); \
 	minor=$$(echo $$current_tag | cut -d. -f2); \
 	patch=$$(echo $$current_tag | cut -d. -f3); \
 	if [ -z "$$major" ] || [ -z "$$minor" ] || [ -z "$$patch" ]; then \
-		echo "Invalid tag format, skipping tag increment."; \
-	else \
-		new_patch=$$(($$patch + 1)); \
-		new_tag="$$major.$$minor.$$new_patch"; \
-		git tag -a $$new_tag -m "Release version $$new_tag"; \
-		git push origin $$new_tag; \
+		echo "❌ Invalid tag format: $$current_tag"; \
+		exit 1; \
+	fi; \
+	new_patch=$$(($$patch + 1)); \
+	new_tag="$$major.$$minor.$$new_patch"; \
+	echo "Incrementing IMAGE_TAG from $$current_tag to $$new_tag"; \
+	sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$$new_tag/" Makefile; \
+	echo "✅ IMAGE_TAG updated to $$new_tag"
+
+increment-minor: ## Increment the minor version in IMAGE_TAG and reset patch to 0
+	@current_tag=$(IMAGE_TAG); \
+	major=$$(echo $$current_tag | cut -d. -f1); \
+	minor=$$(echo $$current_tag | cut -d. -f2); \
+	patch=$$(echo $$current_tag | cut -d. -f3); \
+	if [ -z "$$major" ] || [ -z "$$minor" ] || [ -z "$$patch" ]; then \
+		echo "❌ Invalid tag format: $$current_tag"; \
+		exit 1; \
+	fi; \
+	new_minor=$$(($$minor + 1)); \
+	new_tag="$$major.$$new_minor.0"; \
+	echo "Incrementing IMAGE_TAG from $$current_tag to $$new_tag"; \
+	sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$$new_tag/" Makefile; \
+	echo "✅ IMAGE_TAG updated to $$new_tag"
+
+increment-major: ## Increment the major version in IMAGE_TAG and reset minor and patch to 0
+	@current_tag=$(IMAGE_TAG); \
+	major=$$(echo $$current_tag | cut -d. -f1); \
+	minor=$$(echo $$current_tag | cut -d. -f2); \
+	patch=$$(echo $$current_tag | cut -d. -f3); \
+	if [ -z "$$major" ] || [ -z "$$minor" ] || [ -z "$$patch" ]; then \
+		echo "❌ Invalid tag format: $$current_tag"; \
+		exit 1; \
+	fi; \
+	new_major=$$(($$major + 1)); \
+	new_tag="$$new_major.0.0"; \
+	echo "Incrementing IMAGE_TAG from $$current_tag to $$new_tag"; \
+	sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$$new_tag/" Makefile; \
+	echo "✅ IMAGE_TAG updated to $$new_tag"
+
+release: ## Create a release commit, tag, and push to origin
+	@echo "Creating release for version $(IMAGE_TAG)..."
+	@if git diff --quiet && git diff --cached --quiet; then \
+		echo "❌ No changes to commit. Make your changes first."; \
+		exit 1; \
 	fi
+	git add .
+	git commit -m "Release version $(IMAGE_TAG)"
+	git tag -a $(IMAGE_TAG) -m "Release version $(IMAGE_TAG)"
+	git push origin $(IMAGE_TAG)
 	git push origin main
+	@echo "✅ Released version $(IMAGE_TAG) and pushed to origin"
+
+quick-release: increment-patch release ## Increment patch version and release in one command

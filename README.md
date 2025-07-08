@@ -244,6 +244,65 @@ service:
       level: debug
 ```
 
+## Version Management
+
+This project includes a comprehensive version management system to keep the `IMAGE_TAG` in the Makefile synchronized with git tags.
+
+### Quick Reference
+
+```bash
+# Check if IMAGE_TAG matches latest git tag
+make check-sync
+
+# Sync IMAGE_TAG with latest git tag
+make sync-from-git
+
+# Increment versions
+make increment-patch    # 1.0.1 → 1.0.2
+make increment-minor    # 1.0.1 → 1.1.0
+make increment-major    # 1.0.1 → 2.0.0
+
+# Release workflow
+make quick-release      # Increment patch and release in one command
+make release           # Create release with current IMAGE_TAG
+```
+
+### Version Script
+
+The `version.sh` script provides additional utilities:
+
+```bash
+# Check current version status
+./version.sh status
+
+# Set IMAGE_TAG to specific version
+./version.sh set 1.2.3
+
+# Sync IMAGE_TAG with latest git tag
+./version.sh sync-from-git
+
+# Check if versions are in sync (exit 0 if sync)
+./version.sh check
+
+# Show what next versions would be
+./version.sh next-patch
+./version.sh next-minor
+./version.sh next-major
+```
+
+### Recommended Workflow
+
+1. **Check current status**: `./version.sh status`
+2. **Make your changes**: Edit code, update configs, etc.
+3. **Increment version**: `make increment-patch` (or minor/major as needed)
+4. **Release**: `make release` (commits, tags, and pushes)
+
+Or use the quick release command:
+```bash
+# Make changes, then:
+make quick-release  # Increments patch version and releases
+```
+
 ## License
 
 This project is provided as-is for educational and development purposes.

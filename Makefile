@@ -155,16 +155,23 @@ increment-major: ## Increment the major version in IMAGE_TAG and reset minor and
 	echo "✅ IMAGE_TAG updated to $$new_tag"
 
 release: ## Create a release commit, tag, and push to origin
-	@echo "Creating release for version $(IMAGE_TAG)..."
-	@if git diff --quiet && git diff --cached --quiet; then \
+	@CURRENT_TAG=$$(grep "^IMAGE_TAG=" Makefile | cut -d'=' -f2); \
+	echo "Creating release for version $$CURRENT_TAG..."; \
+	if git diff --quiet && git diff --cached --quiet; then \
 		echo "❌ No changes to commit. Make your changes first."; \
 		exit 1; \
-	fi
-	git add .
-	git commit -m "Release version $(IMAGE_TAG)"
-	git tag -a $(IMAGE_TAG) -m "Release version $(IMAGE_TAG)"
-	git push origin $(IMAGE_TAG)
-	git push origin main
-	@echo "✅ Released version $(IMAGE_TAG) and pushed to origin"
+	fi; \
+	git add .; \
+	git commit -m "Release version $$CURRENT_TAG"; \
+	if git tag -l "$$CURRENT_TAG" | grep -q "$$CURRENT_TAG"; then \
+		echo "❌ Tag $$CURRENT_TAG already exists!"; \
+		exit 1; \
+	fi; \
+	git tag -a $$CURRENT_TAG -m "Release version $$CURRENT_TAG"; \
+	git push origin $$CURRENT_TAG; \
+	git push origin main; \
+	echo "✅ Released version $$CURRENT_TAG and pushed to origin"
 
-quick-release: increment-patch release ## Increment patch version and release in one command
+quick-release: ## Increment patch version and release in one command
+	$(MAKE) increment-patch
+	$(MAKE) release

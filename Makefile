@@ -1,6 +1,6 @@
 # Makefile for building and running a custom OpenTelemetry Collector Docker image with GELF receiver
 IMAGE_NAME=custom-otel-collector
-IMAGE_TAG=1.0.10
+IMAGE_TAG=1.0.11
 PLATFORMS=linux/amd64,linux/arm64
 BUILDER=mybuilder
 
@@ -178,3 +178,59 @@ release: ## Create a release commit, tag, and push to origin
 quick-release: ## Increment patch version and release in one command
 	$(MAKE) increment-patch
 	$(MAKE) release
+
+cleanup-images: ## Trigger GitHub Actions cleanup workflow (dry-run by default)
+	@echo "Triggering image cleanup workflow..."
+	@if command -v gh >/dev/null 2>&1; then \
+		gh workflow run cleanup-images.yml --field dry_run=true; \
+		echo "✅ Cleanup workflow triggered in dry-run mode"; \
+		echo "   To run actual cleanup: gh workflow run cleanup-images.yml --field dry_run=false"; \
+		echo "   View status: gh run list --workflow=cleanup-images.yml"; \
+	else \
+		echo "❌ GitHub CLI (gh) not installed. Install it to trigger workflows from command line."; \
+		echo "   You can also trigger manually at: https://github.com/$(shell git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\).*/\1/' | sed 's/\.git$$//')/actions/workflows/cleanup-images.yml"; \
+	fi
+
+cleanup-images-force: ## Trigger GitHub Actions cleanup workflow (actual cleanup, not dry-run)
+	@echo "⚠️  Triggering ACTUAL image cleanup workflow..."
+	@if command -v gh >/dev/null 2>&1; then \
+		read -p "Are you sure you want to delete old images? [y/N] " -n 1 -r; \
+		echo; \
+		if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+			gh workflow run cleanup-images.yml --field dry_run=false; \
+			echo "✅ Cleanup workflow triggered with actual deletions"; \
+		else \
+			echo "❌ Cleanup cancelled"; \
+		fi; \
+	else \
+		echo "❌ GitHub CLI (gh) not installed. Install it to trigger workflows from command line."; \
+	fi
+
+list-images: ## List all Docker images in GHCR (requires GitHub CLI)
+	@if command -v gh >/dev/null 2>&1; then \
+		echo "Listing Docker images in GHCR..."; \
+		gh api --paginate \
+			"/user/packages?package_type=container" \
+			--jq '.[] | select(.name=="custom-otel-collector") | {name: .name, created_at: .created_at, updated_at: .updated_at, visibility: .visibility}' || \
+		gh api --paginate \
+			"/orgs/$(shell git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\)\/[^/]*.*/\1/')/packages?package_type=container" \
+			--jq '.[] | select(.name=="custom-otel-collector") | {name: .name, created_at: .created_at, updated_at: .updated_at, visibility: .visibility}' 2>/dev/null || \
+		echo "Package not found or no access"; \
+	else \
+		echo "❌ GitHub CLI (gh) not installed. Install it to list images from command line."; \
+		echo "   You can view images at: https://github.com/$(shell git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\).*/\1/' | sed 's/\.git$$//')/pkgs/container/custom-otel-collector"; \
+	fi
+
+list-image-versions: ## List all versions of the Docker image (requires GitHub CLI)
+	@if command -v gh >/dev/null 2>&1; then \
+		echo "Listing all versions of custom-otel-collector..."; \
+		gh api --paginate \
+			"/user/packages/container/custom-otel-collector/versions" \
+			--jq '.[] | {id: .id, name: .name, tags: .metadata.container.tags, created_at: .created_at, updated_at: .updated_at}' || \
+		gh api --paginate \
+			"/orgs/$(shell git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\)\/[^/]*.*/\1/')/packages/container/custom-otel-collector/versions" \
+			--jq '.[] | {id: .id, name: .name, tags: .metadata.container.tags, created_at: .created_at, updated_at: .updated_at}' 2>/dev/null || \
+		echo "Package not found or no access"; \
+	else \
+		echo "❌ GitHub CLI (gh) not installed."; \
+	fi

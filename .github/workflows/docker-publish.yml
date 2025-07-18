@@ -4,6 +4,11 @@ on:
   push:
     branches:
     - main
+    - 'feature/*'
+    - 'feat/*'
+  pull_request:
+    branches:
+    - main
 
 jobs:
   build-and-push:
@@ -25,30 +30,46 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Get latest tag
-      id: get_tag
+    - name: Set image tags and labels
+      id: meta
       run: |
-        git fetch --tags
-        latest_tag=$(git tag --sort=-v:refname | head -n1)
-        if [[ -z "$latest_tag" ]]; then
-          echo "version=1.0.0" >> $GITHUB_OUTPUT
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          # Main branch - use version tags
+          git fetch --tags
+          latest_tag=$(git tag --sort=-v:refname | head -n1)
+          if [[ -z "$latest_tag" ]]; then
+            version="1.0.0"
+          else
+            IFS='.' read -r major minor patch <<< "${latest_tag#v}"
+            patch=$((patch+1))
+            version="$major.$minor.$patch"
+          fi
+          echo "tags=ghcr.io/${{ github.repository_owner }}/custom-otel-collector:$version,ghcr.io/${{ github.repository_owner }}/custom-otel-collector:latest" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "is_main=true" >> $GITHUB_OUTPUT
+          echo "labels=org.opencontainers.image.version=$version" >> $GITHUB_OUTPUT
         else
-          IFS='.' read -r major minor patch <<< "${latest_tag#v}"
-          patch=$((patch+1))
-          echo "version=$major.$minor.$patch" >> $GITHUB_OUTPUT
+          # Feature branch - use branch name and short SHA
+          branch_name=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g' | tr '[:upper:]' '[:lower:]')
+          short_sha=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "tags=ghcr.io/${{ github.repository_owner }}/custom-otel-collector:$branch_name-$short_sha" >> $GITHUB_OUTPUT
+          echo "is_main=false" >> $GITHUB_OUTPUT
+          echo "labels=org.opencontainers.image.revision=${{ github.sha }},org.opencontainers.image.ref.name=${{ github.ref_name }},org.opencontainers.image.created=$(date -u +'%Y-%m-%dT%H:%M:%SZ'),ghcr.io/expires-after=7d" >> $GITHUB_OUTPUT
         fi
 
-    - name: Create new tag
+    - name: Create new tag (main branch only)
+      if: steps.meta.outputs.is_main == 'true'
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git tag v${{ steps.get_tag.outputs.version }}
-        git push origin v${{ steps.get_tag.outputs.version }}
+        git tag v${{ steps.meta.outputs.version }}
+        git push origin v${{ steps.meta.outputs.version }}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/custom-otel-collector:${{ steps.get_tag.outputs.version }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         platforms: linux/amd64,linux/arm64
